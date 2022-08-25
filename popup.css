@@ -1,0 +1,31 @@
+.popup {
+  position: relative;
+}
+.popup-span {
+}
+.popup-checkbox {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  appearance: none;
+}
+.popup-list {
+  width: 12vw;
+  position: absolute;
+  top: 100%;
+  list-style: none;
+  display: none;
+  background: #fff;
+}
+.popup-checkbox:checked + .popup-list {
+  display: block;
+}
+.popup-list > li {
+  color: #000;
+}
+.popup-list > li:hover {
+  box-shadow: 0 1px 4px -3px #000, 0 -1px 4px -3px #000;
+}
