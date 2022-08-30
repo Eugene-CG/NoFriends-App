@@ -40,16 +40,16 @@ const getFriendsData = async (url) => {
     console.log(err);
   }
 };
-const setFriendsDataToHtml = async (results) => {
-  const friends = await results;
-  friends.forEach(async (friend) => await createFriend(friend));
+const setFriendsDataToHtml = (results) => {
+  const friends = results;
+  friends.forEach(async (friend) => createFriend(friend));
 };
 const initialFriends = getFriendsData(FRIEND_URL);
-setFriendsDataToHtml(initialFriends);
 
 let friendsObj;
 (async () => {
   const temp = await initialFriends;
+  setFriendsDataToHtml([...temp]);
   friendsObj = [...temp];
 })();
 let sex;
