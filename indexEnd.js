@@ -47,6 +47,7 @@ const setFriendsDataToHtml = async (results) => {
 const initialFriends = getFriendsData(FRIEND_URL);
 setFriendsDataToHtml(initialFriends);
 
+// let friends = initialFriends;
 let friendsObj;
 (async () => {
   const temp = await initialFriends;
@@ -92,10 +93,8 @@ const handleSearchAndFilters = (friends) => {
   friends = filterByInput(friends, headerInputValue);
   setFriendsDataToHtml(friends);
 };
-let friendsCopy;
-
 sidebar.addEventListener("click", ({ target }) => {
-  friendsCopy = [...friendsObj];
+  let friendsCopy = [...friendsObj];
   if (target.closest(".search")) return;
   if (target.closest(".sex-icon")) sex = target.dataset.id;
   if (target.closest(".age-icon"))
@@ -105,7 +104,6 @@ sidebar.addEventListener("click", ({ target }) => {
   if (target.closest(".icon-hover")) handleSearchAndFilters(friendsCopy);
 });
 searchInput.addEventListener("input", ({ target }) => {
-  friendsCopy = [...friendsObj];
   headerInputValue = target.value;
   handleSearchAndFilters(friendsCopy);
 });

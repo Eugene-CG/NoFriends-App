@@ -1,11 +1,11 @@
 const FRIEND_URL = `https://randomuser.me/api/?results=30&nat=us,fr,nl,nz&inc=nat,location,gender,name,email,dob,phone,picture`;
-const friendsContainer = document.querySelector(".friends-container");
-const sidebar = document.querySelector(".sidebar");
-const searchInput = document.querySelector(".search__input");
+const mainContent = document.querySelector(".main-container");
+const headerFilters = document.querySelector(".header-bottom");
+const headerSearchInput = document.querySelector(".header-search__input");
 
 const createFriend = ({ picture, gender, name, dob, nat }) => {
   const textHtml = `
-            <div class="friend">
+            <div class="main-friend">
                 <div class="friend-picture-sex">
                     <img src="${picture.large}" alt="" class="friend-picture">
                     <div class="friend-sex-container">
@@ -28,7 +28,7 @@ const createFriend = ({ picture, gender, name, dob, nat }) => {
                     </div>
                 </div>
             </div>`;
-  friendsContainer.insertAdjacentHTML("beforeend", textHtml);
+  mainContent.insertAdjacentHTML("beforeend", textHtml);
 };
 const getFriendsData = async (url) => {
   try {
@@ -44,15 +44,17 @@ const setFriendsDataToHtml = async (results) => {
   const friends = await results;
   friends.forEach(async (friend) => await createFriend(friend));
 };
-const initialFriends = getFriendsData(FRIEND_URL);
-setFriendsDataToHtml(initialFriends);
 
-let friendsObj;
+const initialFriendsArray = getFriendsData(FRIEND_URL);
+setFriendsDataToHtml(initialFriendsArray);
+let friendsArray = initialFriendsArray;
+let resetArray;
 (async () => {
-  const temp = await initialFriends;
-  friendsObj = [...temp];
+  const hi = await friendsArray;
+  resetArray = [...hi];
 })();
 let sex;
+let sortDirection;
 let headerInputValue = "";
 
 const filterSex = (friends, sex) => {
@@ -72,40 +74,42 @@ const filterByInput = (friends, value) => {
   });
   return filteredFriends;
 };
-const sortName = (friends, direction) => {
-  friends.sort(({ first, last }) => {
-    let aName = first + " " + last;
-    let bName = first + " " + last;
+const sortFriendsByName = (friends, direction) => {
+  friends.sort((a, b) => {
+    let aName = a.name.first + " " + a.name.last;
+    let bName = b.name.first + " " + b.name.last;
     return aName.localeCompare(bName);
   });
   if (direction === "up") return friends.reverse();
   return friends;
 };
-const sortAge = (friends, direction) => {
+const sortFriendsByAge = (friends, direction) => {
   friends.sort((a, b) => a.dob.age - b.dob.age);
   if (direction === "up") return friends.reverse();
   return friends;
 };
-const handleSearchAndFilters = (friends) => {
-  friendsContainer.innerHTML = "";
-  friends = filterSex(friends, sex);
-  friends = filterByInput(friends, headerInputValue);
-  setFriendsDataToHtml(friends);
+const handleSearch = (friendsArray) => {
+  mainContent.innerHTML = "";
+  friendsArray = filterSex(friendsArray, sex);
+  friendsArray = filterByInput(friendsArray, headerInputValue);
+  setFriendsDataToHtml(friendsArray);
 };
-let friendsCopy;
+friendsArray = initialFriendsArray;
 
-sidebar.addEventListener("click", ({ target }) => {
-  friendsCopy = [...friendsObj];
-  if (target.closest(".search")) return;
-  if (target.closest(".sex-icon")) sex = target.dataset.id;
-  if (target.closest(".age-icon"))
-    friendsCopy = sortAge(friendsCopy, target.dataset.direction);
-  if (target.closest(".name-icon"))
-    friendsCopy = sortName(friendsCopy, target.dataset.direction);
-  if (target.closest(".icon-hover")) handleSearchAndFilters(friendsCopy);
+headerFilters.addEventListener("click", ({ target }) => {
+  friendsArray = [...resetArray];
+  if (target.closest(".header-sex__icon")) sex = target.dataset.id;
+  if (target.closest(".header-age__icon")) {
+    sortDirection = target.dataset.direction;
+    friendsArray = sortFriendsByAge(friendsArray, sortDirection);
+  }
+  if (target.closest(".header-name__icon")) {
+    sortDirection = target.dataset.direction;
+    friendsArray = sortFriendsByName(friendsArray, sortDirection);
+  }
+  handleSearch(friendsArray);
 });
-searchInput.addEventListener("input", ({ target }) => {
-  friendsCopy = [...friendsObj];
+headerSearchInput.addEventListener("input", ({ target }) => {
   headerInputValue = target.value;
-  handleSearchAndFilters(friendsCopy);
+  handleSearch(friendsArray);
 });
