@@ -73,9 +73,9 @@ const filterByInput = (friends, value) => {
   return filteredFriends;
 };
 const sortName = (friends, direction) => {
-  friends.sort(({ first, last }) => {
-    let aName = first + " " + last;
-    let bName = first + " " + last;
+  friends.sort((a, b) => {
+    let aName = a.name.first + " " + a.name.last;
+    let bName = b.name.first + " " + b.name.last;
     return aName.localeCompare(bName);
   });
   if (direction === "up") return friends.reverse();
