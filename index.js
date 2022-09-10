@@ -3,11 +3,17 @@ const friendsContainer = document.querySelector(".friends-container");
 const sidebar = document.querySelector(".sidebar");
 const searchInput = document.querySelector(".search__input");
 
-const createFriend = ({ picture, gender, name, dob, nat }) => {
+const createFriend = ({
+  picture: { large },
+  gender,
+  name: { first, last },
+  dob: { age },
+  nat,
+}) => {
   const textHtml = `
             <div class="friend">
                 <div class="friend-picture-sex">
-                    <img src="${picture.large}" alt="" class="friend-picture">
+                    <img src="${large}" alt="" class="friend-picture">
                     <div class="friend-sex-container">
                         <img src="./img/${gender}-gender.png" alt="" class="friend-sex">
                     </div>
@@ -15,10 +21,10 @@ const createFriend = ({ picture, gender, name, dob, nat }) => {
                 <div class="friend-description">
                     <div class="friend-name-age">
                         <span class="friend-name">
-                            ${name.first} ${name.last},
+                            ${first} ${last},
                         </span>
                         <span class="friend-age">
-                            ${dob.age}
+                            ${age}
                         </span>
                     </div>
                     <div class="friend-icons">
@@ -40,17 +46,15 @@ const getFriendsData = async (url) => {
     console.log(err);
   }
 };
-const setFriendsDataToHtml = (results) => {
-  const friends = results;
+const setFriendsDataToHtml = (friends) =>
   friends.forEach((friend) => createFriend(friend));
-};
+
 const initialFriends = getFriendsData(FRIEND_URL);
 
 let friendsObj;
 (async () => {
-  const temp = await initialFriends;
-  setFriendsDataToHtml([...temp]);
-  friendsObj = [...temp];
+  friendsObj = [...(await initialFriends)];
+  setFriendsDataToHtml(friendsObj);
 })();
 // actualy I could use this code below, but I prefer IIFE here, because fetch called once
 // const createInitialFriendsCopy = async (initialFriends) => {
@@ -63,11 +67,10 @@ let sex;
 let headerInputValue = "";
 
 const filterSex = (friends, sex) => {
-  let filteredFriends = friends;
   if (sex === "male" || sex === "female") {
-    filteredFriends = friends.filter((friend) => friend.gender === sex);
+    friends = friends.filter((friend) => friend.gender === sex);
   }
-  return filteredFriends;
+  return friends;
 };
 const filterByInput = (friends, value) => {
   if (value === "") return friends;
