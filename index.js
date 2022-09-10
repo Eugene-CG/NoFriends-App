@@ -1,19 +1,13 @@
-const FRIEND_URL = `https://randomuser.me/api/?results=30&nat=us,fr,nl,nz&inc=nat,location,gender,name,email,dob,phone,picture`;
+const FRIEND_URL = `https://randomuser.me/api/?results=30&nat=us,fr,nl,nz&inc=nat,gender,name,dob,picture`;
 const friendsContainer = document.querySelector(".friends-container");
 const sidebar = document.querySelector(".sidebar");
 const searchInput = document.querySelector(".search__input");
 
-const createFriend = ({
-  picture: { large },
-  gender,
-  name: { first, last },
-  dob: { age },
-  nat,
-}) => {
+const createFriend = ({ gender, fullName, age, face, nat }) => {
   const textHtml = `
             <div class="friend">
                 <div class="friend-picture-sex">
-                    <img src="${large}" alt="" class="friend-picture">
+                    <img src="${face}" alt="" class="friend-picture">
                     <div class="friend-sex-container">
                         <img src="./img/${gender}-gender.png" alt="" class="friend-sex">
                     </div>
@@ -21,7 +15,7 @@ const createFriend = ({
                 <div class="friend-description">
                     <div class="friend-name-age">
                         <span class="friend-name">
-                            ${first} ${last},
+                            ${fullName},
                         </span>
                         <span class="friend-age">
                             ${age}
@@ -53,50 +47,45 @@ const initialFriends = getFriendsData(FRIEND_URL);
 
 let friendsObj;
 (async () => {
-  friendsObj = [...(await initialFriends)];
+  friendsObj = [...(await initialFriends)].map((friend) => {
+    return {
+      gender: friend.gender,
+      fullName: `${friend.name.first} ${friend.name.last}`,
+      age: friend.dob.age,
+      face: friend.picture.large,
+      nat: friend.nat,
+    };
+  });
   setFriendsDataToHtml(friendsObj);
 })();
 // actualy I could use this code below, but I prefer IIFE here, because fetch called once
-// const createInitialFriendsCopy = async (initialFriends) => {
-//   const temp = await initialFriends;
-//   setFriendsDataToHtml([...temp]);
-//   friendsObj = [...temp];
-// };
-// createInitialFriendsCopy(initialFriends);
 let sex;
 let headerInputValue = "";
 
 const filterSex = (friends, sex) => {
   if (sex === "male" || sex === "female") {
-    friends = friends.filter((friend) => friend.gender === sex);
+    friends = friends.filter(({ gender }) => gender === sex);
   }
   return friends;
 };
 const filterByInput = (friends, value) => {
   if (value === "") return friends;
-  let filteredFriends = friends.filter((friend) => {
-    let fullName =
-      friend.name.first.toLowerCase() + " " + friend.name.last.toLowerCase();
+  const filteredFriends = friends.filter(({ fullName: a }) => {
+    let fullName = a.toLowerCase();
     let tempTarget = value.toLowerCase();
     return fullName.indexOf(tempTarget) >= 0;
   });
   return filteredFriends;
 };
 const sortName = (friends, direction) => {
-  friends.sort((a, b) => {
-    let aName = a.name.first + " " + a.name.last;
-    let bName = b.name.first + " " + b.name.last;
-    return aName.localeCompare(bName);
-  });
-  if (direction === "up") return friends.reverse();
-  return friends;
+  friends.sort(({ fullName: a }, { fullName: b }) => a.localeCompare(b));
+  if (direction === "up") friends.reverse();
 };
 const sortAge = (friends, direction) => {
-  friends.sort((a, b) => a.dob.age - b.dob.age);
-  if (direction === "up") return friends.reverse();
-  return friends;
+  friends.sort(({ age: a }, { age: b }) => a - b);
+  if (direction === "up") friends.reverse();
 };
-const handleSearchAndFilters = (friends) => {
+const handleFilters = (friends) => {
   friendsContainer.innerHTML = "";
   friends = filterSex(friends, sex);
   friends = filterByInput(friends, headerInputValue);
@@ -112,10 +101,10 @@ sidebar.addEventListener("click", ({ target }) => {
     sortAge(friendsCopy, target.dataset.direction);
   if (target.closest(".name-icon"))
     sortName(friendsCopy, target.dataset.direction);
-  if (target.closest(".icon-hover")) handleSearchAndFilters(friendsCopy);
+  if (target.closest(".icon-hover")) handleFilters(friendsCopy);
 });
 searchInput.addEventListener("input", ({ target }) => {
   friendsCopy = [...friendsObj];
   headerInputValue = target.value;
-  handleSearchAndFilters(friendsCopy);
+  handleFilters(friendsCopy);
 });
