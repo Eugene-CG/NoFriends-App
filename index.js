@@ -109,9 +109,9 @@ sidebar.addEventListener("click", ({ target }) => {
   if (target.closest(".search")) return;
   if (target.closest(".sex-icon")) sex = target.dataset.id;
   if (target.closest(".age-icon"))
-    friendsCopy = sortAge(friendsCopy, target.dataset.direction);
+    sortAge(friendsCopy, target.dataset.direction);
   if (target.closest(".name-icon"))
-    friendsCopy = sortName(friendsCopy, target.dataset.direction);
+    sortName(friendsCopy, target.dataset.direction);
   if (target.closest(".icon-hover")) handleSearchAndFilters(friendsCopy);
 });
 searchInput.addEventListener("input", ({ target }) => {
