@@ -206,6 +206,7 @@ body {
     flex-direction: column;
   }
   .friends-container {
+    margin-top: 50px;
     grid-template-columns: repeat(2, 48.333%);
   }
   .sidebar {
