@@ -101,7 +101,7 @@ const handleFilters = (friends) => {
   friends = filterByInput(friends, headerInputValue);
   sortAge(friends, ageDirection);
   sortName(friends, nameDirection);
-  setFriendsDataToHtml(friends);
+  return friends;
 };
 
 sidebar.addEventListener("click", ({ target }) => {
@@ -125,11 +125,12 @@ sidebar.addEventListener("click", ({ target }) => {
     nameDirection = target.dataset.direction;
     ageDirection = null;
   }
-  if (target.closest(".icon-hover")) handleFilters(friendsCopy);
+  if (target.closest(".icon-hover"))
+    setFriendsDataToHtml(handleFilters(friendsCopy));
 });
 
 searchInput.addEventListener("input", ({ target }) => {
   friendsCopy = [...initialFriends];
   headerInputValue = target.value;
-  handleFilters(friendsCopy);
+  setFriendsDataToHtml(handleFilters(friendsCopy));
 });
